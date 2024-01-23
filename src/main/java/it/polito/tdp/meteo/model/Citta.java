@@ -8,16 +8,9 @@ public class Citta {
 	private String nome;
 	private List<Rilevamento> rilevamenti;
 	private int counter = 0;
-	
-	
-	
+		
 	public Citta(String nome) {
 		this.nome = nome;
-	}
-	
-	public Citta(String nome, List<Rilevamento> rilevamenti) {
-		this.nome = nome;
-		this.rilevamenti = rilevamenti;
 	}
 
 	public String getNome() {
@@ -44,8 +37,12 @@ public class Citta {
 		this.counter = counter;
 	}
 	
-	public void increaseCounter() {
-		this.counter += 1;
+	public void increaseCounter(int n) {
+		this.counter += n;
+	}
+	
+	public void decreaseCounter(int n) {
+		this.counter -= n;
 	}
 
 	@Override

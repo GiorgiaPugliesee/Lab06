@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.polito.tdp.meteo.model.Citta;
 import it.polito.tdp.meteo.model.Rilevamento;
+import it.polito.tdp.meteo.model.Umidita;
 
 public class MeteoDAO {
 	
@@ -25,7 +27,7 @@ public class MeteoDAO {
 
 			while (rs.next()) {
 
-				Rilevamento r = new Rilevamento(rs.getString("Localita"), rs.getDate("Data"), rs.getInt("Umidita"));
+				Rilevamento r = new Rilevamento(rs.getString("Localita"), rs.getDate("Data").toLocalDate(), rs.getInt("Umidita"));
 				rilevamenti.add(r);
 			}
 
@@ -38,10 +40,99 @@ public class MeteoDAO {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public List<Umidita> getMediaUmiditaMese(int mese) {
+		String sql = " SELECT AVG(Umidita) as Umidita, Localita "
+				+ " FROM situazione "
+				+ " WHERE MONTH(DATA) = ? "
+				+ " GROUP BY Localita " ;
+		
+		List<Umidita> result = new ArrayList<>();
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
 
-	public List<Rilevamento> getAllRilevamentiLocalitaMese(int mese, String localita) {
+			st.setInt(1, mese);
+			
+			ResultSet rs = st.executeQuery();
+			
+			while (rs.next()) {
 
-		return null;
+				Umidita u = new Umidita(rs.getString("Localita"), rs.getDouble("Umidita"));
+				result.add(u);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		
+				
+	}
+
+	public List<Rilevamento> getAllRilevamentiLocalitaMese(int mese) {
+		String sql = "SELECT Localita, DATA, Umidita "
+				+ "FROM situazione "
+				+ "WHERE MONTH(DATA) = ? AND DAY(DATA) <= 15 ";
+		
+		List<Rilevamento> result = new ArrayList<>();
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+
+			st.setInt(1, mese);
+			
+			ResultSet rs = st.executeQuery();
+			
+			while (rs.next()) {
+
+				Rilevamento r = new Rilevamento(rs.getString("Localita"), rs.getDate("Data").toLocalDate(), rs.getInt("Umidita"));
+				result.add(r);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public List<Citta> getAllCitta() {
+		String sql = " SELECT Localita "
+				+ " FROM situazione "
+				+ " GROUP BY Localita ";
+		
+		List<Citta> citta = new ArrayList<Citta>();
+
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+
+				Citta c = new Citta(rs.getString("Localita"));
+				citta.add(c);
+			}
+
+			conn.close();
+			return citta;
+
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 	}
 
 
